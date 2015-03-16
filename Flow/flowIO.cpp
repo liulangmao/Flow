@@ -150,8 +150,8 @@ int main() {
 	tempTrainA.convertTo(tempTrainA, CV_32FC3);
 	resultC = Mat::zeros(tempTrainA.rows, tempTrainA.cols, CV_32FC3);;
 
-	char *filename = "flo1.flo";
-
+	//char *filename = "flotest.flo";//get the originial result
+	char *filename = "flo.flo";
 	//WriteFlowFile(img, filename);
 	ReadFlowFile(img, filename);
 	CShape sh = img.Shape(); 
@@ -180,33 +180,45 @@ int main() {
 	ytxt.close();
 #endif // WriteFile
 	
-	/*for (int c = 0; c < width; c++)
+	for (int c = 0; c < width; c++)
 	{
 		for (int r = 0; r < height; r++)
-		{*/
-	int c = 276, r = 225;
+		{
+	//int c = 248, r = 135;//test corner1
+	//int c = 188, r = 192;//test corner2
 			
-				float uu = img.Pixel(r, c, 0);
-				float vv = img.Pixel(r, c, 1);
-				int u =round(img.Pixel(c, r, 0)+r);
-				int v = round(img.Pixel(c, r, 1+c));//this value has negative values
-
-				u = (u >= width) ? width-1 : u ;
-				v = (v >= height) ? height-1 : v ;
-				u = (u  < 0) ? 0 : u ;
-				v = (v  < 0) ? 0 : v ;
+				float uu = img.Pixel(c, r, 0);
+				float vv = img.Pixel(c, r, 1);
+				//cout << "c:" << c << "r:" << r << ";" << uu << " " << vv << "" << endl;
+				
+				//int u =round(img.Pixel(c, r, 0)+c);
+				//int v = round(img.Pixel(c, r, 1)+r);//this value has negative values
+				int u = 0;
+				int v = 0;
+				if (abs(uu)>=1e9 || abs(vv) >=1e9)
+				{
+					u = 0;
+					v = 0;
+				}
+				else{
+					u = (round(img.Pixel(c, r, 0) + c) >= width) ? width - 1 : round(img.Pixel(c, r, 0) + c);
+					v = (round(img.Pixel(c, r, 1) + r) >= height) ? height - 1 : round(img.Pixel(c, r, 1) + r);
+					u = (round(img.Pixel(c, r, 0) + c)  < 0) ? 0 : u;
+					v = (round(img.Pixel(c, r, 1) + r)  < 0) ? 0 : v;
+				}
+				
 		    	//cout << "c:" << c << "r:" << r << ";" << u << " " << v << "" << endl;
 				for (int i = 0; i < 3; i++)
 				{
 				//resultC.at<Vec3f>(r, c)[i] = tempTrainB.at<Vec3f>(v, u)[i];//(y,x)   r horizontalshuipingde==x (u) and vertical (v) flow components.
-					resultC.at<Vec3f>(r, c)[i] = tempTrainA.at<Vec3f>(v, u)[i];//(y,x)   r horizontalshuipingde==x (u) and vertical (v) flow components.
+					resultC.at<Vec3f>(r, c)[i] = tempTrainB.at<Vec3f>(v, u)[i];//(y,x)   r horizontalshuipingde==x (u) and vertical (v) flow components.
 			    }
-				Point pt1(c, r);
+				/*Point pt1(c, r);
 				Point pt2(u, v);
-				line(tempTrainA, pt1, pt2, Scalar(0, 255, 255), 1, 8, 0);
-	/*	}
-	}*/
-	cv::imwrite("result.png", tempTrainA);
+				line(tempTrainA, pt1, pt2, Scalar(0, 255, 255), 1, 8, 0);*/
+		}
+	}
+	cv::imwrite("result.png", resultC);
     }
     catch (CError &err) {
 	fprintf(stderr, err.message);
